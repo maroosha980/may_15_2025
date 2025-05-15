@@ -1,0 +1,296 @@
+import 'package:flutter/material.dart';
+import 'file.dart'; // Make sure this matches your actual file name
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'SQLite App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: FilePage(), // Starting screen
+    );
+  }
+}
+
+
+import 'package:flutter/material.dart';
+import 'dbhelp.dart';
+
+class ScreenPage extends StatefulWidget {
+  const ScreenPage({super.key});
+
+  @override
+  _ScreenPageState createState() => _ScreenPageState();
+}
+
+class _ScreenPageState extends State<ScreenPage> {
+  List<Map<String, dynamic>> _dataList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() async {
+    List<Map<String, dynamic>> data = await DatabaseHelper().getAllData();
+    setState(() {
+      _dataList = data;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // Gradient background
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF3a6186), Color(0xFF89253e)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Custom AppBar style
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: const Center(
+                  child: Text(
+                    '📋 Stored Data List',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // List content
+              Expanded(
+                child: _dataList.isEmpty
+                    ? const Center(
+                  child: Text(
+                    'No data found!',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                )
+                    : ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: _dataList.length,
+                  itemBuilder: (context, index) {
+                    final item = _dataList[index];
+                    return Card(
+                      elevation: 6,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      color: Colors.white.withOpacity(0.95),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.deepPurpleAccent,
+                          child: Text(
+                            item['id'].toString(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        title: Text(
+                          item['text'],
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+import 'package:flutter/material.dart';
+import 'dbhelp.dart';
+import 'screen.dart';
+
+class FilePage extends StatefulWidget {
+  const FilePage({super.key});
+
+  @override
+  _FilePageState createState() => _FilePageState();
+}
+
+class _FilePageState extends State<FilePage> {
+  final TextEditingController _controller = TextEditingController();
+
+  void _saveDataAndNavigate() async {
+    String text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      await DatabaseHelper().insertData(text);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ScreenPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('⚠️ Please enter some text')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // Full-screen gradient background
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0f2027), Color(0xFF203a43), Color(0xFF2c5364)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    '📝 Let’s Add Something!',
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Glass-style input card
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: _controller,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Write your thoughts here...',
+                            hintStyle: TextStyle(
+                                color: Colors.white.withOpacity(0.7)),
+                            filled: true,
+                            fillColor: Colors.white.withOpacity(0.1),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          maxLines: 2,
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _saveDataAndNavigate,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: Colors.greenAccent[400],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              elevation: 8,
+                            ),
+                            child: const Text(
+                              '🚀 Save & Continue',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+
+class DatabaseHelper {
+  static final DatabaseHelper _instance = DatabaseHelper._internal();
+  factory DatabaseHelper() => _instance;
+  DatabaseHelper._internal();
+
+  Database? _database;
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    return await _initDatabase();
+  }
+
+  Future<Database> _initDatabase() async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'mydata.db');
+
+    return await openDatabase(path, version: 1, onCreate: (db, version) async {
+      await db.execute('''
+        CREATE TABLE data (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          text TEXT
+        )
+      ''');
+    });
+  }
+
+  Future<void> insertData(String text) async {
+    final db = await database;
+    await db.insert('data', {'text': text});
+  }
+
+  Future<List<Map<String, dynamic>>> getAllData() async {
+    final db = await database;
+    return await db.query('data');
+  }
+}

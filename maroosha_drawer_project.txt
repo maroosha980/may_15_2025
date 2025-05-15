@@ -1,0 +1,271 @@
+ import 'package:flutter/material.dart';
+import 'file1.dart'; // Make sure file1.dart is in the lib folder
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Drawer Navigation App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        scaffoldBackgroundColor: Colors.grey[200],
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: File1Page(), // Starting page with drawer
+    );
+  }
+}
+
+
+import 'package:flutter/material.dart';
+import 'screen.dart';
+import 'home.dart';
+
+class File1Page extends StatelessWidget {
+  const File1Page({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Navigation Drawer'),
+        centerTitle: true,
+        backgroundColor: Colors.deepPurple,
+        elevation: 6,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: Icon(Icons.menu_book),
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(30),
+            bottomRight: Radius.circular(30),
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              height: 180,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    CircleAvatar(
+                      radius: 35,
+                      backgroundImage: AssetImage('assets/images/edu.jpeg'),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'My Flutter Drawer',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            ListTile(
+              leading: const Icon(Icons.dashboard_customize, color: Colors.deepPurple),
+              title: const Text('Data Screen'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const Screen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.home, color: Colors.deepPurple),
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const HomePage()));
+              },
+            ),
+            const Spacer(),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: const [
+                  Icon(Icons.info_outline, color: Colors.grey),
+                  SizedBox(width: 10),
+                  Text("App Version 1.0.0"),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: Center(
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
+          elevation: 8,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.flutter_dash, size: 50, color: Colors.deepPurple),
+                SizedBox(height: 20),
+                Text(
+                  'Welcome to the New Drawer App!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+import 'package:flutter/material.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final _subjectController = TextEditingController();
+  final _teacherController = TextEditingController();
+  final _creditController = TextEditingController();
+
+  String? subject, teacher, credit;
+
+  void _submitData() {
+    setState(() {
+      subject = _subjectController.text.trim();
+      teacher = _teacherController.text.trim();
+      credit = _creditController.text.trim();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF0F4F8),
+      appBar: AppBar(
+        title: const Text('📚 Course Details'),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.deepPurple,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    const Icon(Icons.school, size: 50, color: Colors.deepPurple),
+                    const SizedBox(height: 15),
+                    _buildInputField(_subjectController, 'Subject Name', Icons.book),
+                    const SizedBox(height: 15),
+                    _buildInputField(_teacherController, 'Teacher Name', Icons.person),
+                    const SizedBox(height: 15),
+                    _buildInputField(_creditController, 'Credit Hours', Icons.timelapse, isNumber: true),
+                    const SizedBox(height: 25),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _submitData,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.deepPurple,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text(
+                          '📥 Save Course',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+              if (subject != null && teacher != null && credit != null)
+                Card(
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("📘 Subject: $subject", style: _infoStyle()),
+                        const SizedBox(height: 8),
+                        Text("👩‍🏫 Teacher: $teacher", style: _infoStyle()),
+                        const SizedBox(height: 8),
+                        Text("📊 Credit Hours: $credit", style: _infoStyle()),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField(TextEditingController controller, String hint, IconData icon,
+      {bool isNumber = false}) {
+    return TextField(
+      controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: Colors.deepPurple),
+        hintText: hint,
+        filled: true,
+        fillColor: const Color(0xFFF7F9FC),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  TextStyle _infoStyle() =>
+      const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87);
+}
